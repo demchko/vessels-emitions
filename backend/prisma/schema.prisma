@@ -68,6 +68,7 @@ model DailyLogEmission {
 
   vessel Vessel @relation(fields: [vesselId], references: [imoNo])
 
+  @@unique([eid, logId])
   @@map("daily_log_emissions")
 }
 
