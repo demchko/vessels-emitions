@@ -1,15 +1,87 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Vessel {
+  id         Int    @id @default(autoincrement())
+  name       String
+  imoNo      String @unique
+  vesselType Int
+  dwt        Float? // Deadweight tonnage
+
+  emissions DailyLogEmission[]
+
+  @@map("vessels")
+}
+
+model DailyLogEmission {
+  id       Int      @id @default(autoincrement())
+  eid      Int
+  vesselId String
+  logId    String
+  fromUTC  DateTime
+  toUTC    DateTime
+
+  // Main Engine T2W CO2
+  metCO2 Float
+  aetCO2 Float
+  botCO2 Float
+  vrtCO2 Float
+  totCO2 Float
+
+  // CO2 equivalent emissions
+  mewCO2e  Float
+  aewCO2e  Float
+  bowCO2e  Float
+  vrwCO2e  Float
+  totWCO2e Float
+
+  // SOx emissions
+  mesOx  Float
+  aesOx  Float
+  bosOx  Float
+  vrsOx  Float
+  totSOx Float
+
+  // NOx emissions
+  menOx  Float
+  aenOx  Float
+  totNOx Float
+
+  // PM10 emissions
+  mepm10  Float
+  aepm10  Float
+  totPM10 Float
+
+  // Additional CO2 metrics
+  aerCO2T2W   Float
+  aerCO2eW2W  Float
+  eeOICO2eW2W Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  vessel Vessel @relation(fields: [vesselId], references: [imoNo])
+
+  @@map("daily_log_emissions")
+}
+
+model CE_PPSCCReferenceLine {
+  rowId        Int    @id @default(autoincrement()) @map("RowID")
+  category     String @map("Category")
+  vesselTypeId Int    @map("VesselTypeID")
+  size         String @map("Size")
+  traj         String @map("Traj")
+  a            Float
+  b            Float
+  c            Float
+  d            Float
+  e            Float
+
+  @@map("pp_reference")
 }
